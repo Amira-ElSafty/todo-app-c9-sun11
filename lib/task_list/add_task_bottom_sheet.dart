@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_todo_c9_sun_11/firebase_utils.dart';
+import 'package:flutter_app_todo_c9_sun_11/model/task.dart';
+import 'package:flutter_app_todo_c9_sun_11/providers/list_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddTaskBottomSheet extends StatefulWidget {
   @override
@@ -8,9 +12,13 @@ class AddTaskBottomSheet extends StatefulWidget {
 class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
   DateTime selectedDate = DateTime.now();
   var formKey = GlobalKey<FormState>();
+  String title = '';
+  String description = '';
+  late ListProvider listProvider;
 
   @override
   Widget build(BuildContext context) {
+    listProvider = Provider.of<ListProvider>(context);
     return Container(
       padding: EdgeInsets.all(12),
       child: Column(
@@ -27,6 +35,9 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
+                      onChanged: (text) {
+                        title = text;
+                      },
                       validator: (text) {
                         if (text == null || text.isEmpty) {
                           return 'Please enter task title';
@@ -39,6 +50,9 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
+                      onChanged: (text) {
+                        description = text;
+                      },
                       validator: (text) {
                         if (text == null || text.isEmpty) {
                           return 'Please enter task description';
@@ -65,7 +79,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
                         '${selectedDate.day}/${selectedDate.month}/'
-                        '${selectedDate.year}',
+                            '${selectedDate.year}',
                         style: Theme.of(context).textTheme.titleSmall,
                         textAlign: TextAlign.center,
                       ),
@@ -89,7 +103,7 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
   void showCalendar() async {
     var chosenDate = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: selectedDate,
         firstDate: DateTime.now(),
         lastDate: DateTime.now().add(Duration(days: 365)));
     if (chosenDate != null) {
@@ -101,6 +115,14 @@ class _AddTaskBottomSheetState extends State<AddTaskBottomSheet> {
   void addTask() {
     if (formKey.currentState?.validate() == true) {
       /// add task to firebase
+      Task task =
+          Task(title: title, description: description, dateTime: selectedDate);
+      FirebaseUtils.addTaskToFireStore(task)
+          .timeout(Duration(milliseconds: 500), onTimeout: () {
+        print('todo added succuessfully');
+        listProvider.getAllTasksFromFireStore();
+        Navigator.pop(context);
+      });
     }
   }
 }
