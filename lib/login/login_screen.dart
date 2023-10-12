@@ -146,27 +146,17 @@ class _LoginScreenState extends State<LoginScreen> {
             title: 'Success', posActionName: 'Ok', posAction: () {
           Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
         });
-        print('login succuessfully');
-        print(credential.user?.uid ?? '');
       } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
+        if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
           DialogUtils.hideLoading(context);
-          DialogUtils.showMessage(context, 'No user found for that email.',
+          DialogUtils.showMessage(context,
+              'No user found for that email or Wrong password provided for that user.',
               posActionName: 'Ok', title: 'Error');
-          print('error firebaseAuth: ${e.toString()}');
-          print('No user found for that email.');
-        } else if (e.code == 'wrong-password') {
-          DialogUtils.hideLoading(context);
-          DialogUtils.showMessage(
-              context, 'Wrong password provided for that user.',
-              posActionName: 'Ok', title: 'Error');
-          print('Wrong password provided for that user.');
         }
       } catch (e) {
         DialogUtils.hideLoading(context);
-        DialogUtils.showMessage(context, '${e.toString()}',
+        DialogUtils.showMessage(context, e.toString(),
             posActionName: 'Ok', title: 'Error');
-        print('in second catch : ${e.toString()}');
       }
     }
   }

@@ -164,11 +164,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             title: 'Success', posActionName: 'Ok', posAction: () {
           Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
         });
-        print('register succuessfully');
-        print(credential.user?.uid ?? '');
       } on FirebaseAuthException catch (e) {
         // todo: hide loading
-        // DialogUtils.hideLoading(context);
+         DialogUtils.hideLoading(context);
         //  todo: show message
         String errorMessage = 'Something went wrong';
         if (e.code == 'weak-password') {
@@ -184,11 +182,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       } catch (e) {
         // todo: hide loading
-        //  todo: show message
         DialogUtils.hideLoading(context);
+        //  todo: show message
         DialogUtils.showMessage(context, e.toString(),
             posActionName: 'Ok', title: 'Error');
-        print(e.toString());
       }
     }
   }
